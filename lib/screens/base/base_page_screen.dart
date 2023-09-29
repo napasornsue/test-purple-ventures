@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
@@ -9,7 +11,8 @@ abstract class BasePageScreen extends StatefulWidget {
   BasePageScreen({Key? key}): super(key: key);
 }
 
-abstract class BasePageScreenState<Page extends BasePageScreen> extends State<Page> with RouteAware {
+abstract class BasePageScreenState<Page extends BasePageScreen> extends State<Page> with RouteAware, WidgetsBindingObserver {
+
   String? title;
   bool? showNavigator;
   bool? showBack;
@@ -40,6 +43,7 @@ mixin BaseScreen<Page extends BasePageScreen, STATE, EVENT> on BasePageScreenSta
   void initState() {
     super.initState();
     isLoading = BehaviorSubject<bool>.seeded(false);
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
@@ -52,6 +56,7 @@ mixin BaseScreen<Page extends BasePageScreen, STATE, EVENT> on BasePageScreenSta
   void dispose() {
     isLoading?.close();
     AppDependency.instance.routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 

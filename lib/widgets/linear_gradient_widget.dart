@@ -19,14 +19,14 @@ class _LinearGradientWidgetState extends State<LinearGradientWidget> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: AppColor.transparent,
+      color: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: <Color>[
-              AppColor.lightGrey.withOpacity(widget.opacity ?? 1),
+              // AppColor.lightGrey.withOpacity(widget.opacity ?? 1),
               AppColor.black.withOpacity(widget.opacity ?? 1),
             ],
           ),

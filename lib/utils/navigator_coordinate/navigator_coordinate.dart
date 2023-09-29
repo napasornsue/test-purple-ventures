@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:test_purple_ventures/screens/main/main_screen.dart';
+import 'package:test_purple_ventures/screens/passcode/enter_passcode_screen.dart';
 
 class NavigatorCoordinate {
   NavigatorCoordinate();
 
   back(BuildContext context) {
-    Navigator.pop(context);
+    Navigator.maybePop(context);
   }
 
   backWithResult(BuildContext context, result) {
-    Navigator.pop(context, result);
+    Navigator.maybePop(context, result);
   }
 
-  // goToLogin(BuildContext context) {
-  //   Navigator.pushAndRemoveUntil(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => LoginScreen()),
-  //         (route) => false,
-  //   );
-  // }
-  //
-  // goToMain(BuildContext context, {
-  //   String? trackId,
-  //   int? selectedTab
-  // }) {
-  //   Navigator.pushAndRemoveUntil(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => MainScreen(trackId: trackId, selectedTab: selectedTab)),
-  //         (route) => false,
-  //   );
-  // }
+  goToMain(BuildContext context) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => MainScreen()),
+          (route) => false,
+    );
+  }
+
+  goToEnterPasscodeScreen(BuildContext context, String from) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EnterPasscodeScreen(from: from),
+      ),
+    );
+  }
 
 }

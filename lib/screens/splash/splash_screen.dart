@@ -1,92 +1,46 @@
-import 'dart:io';
+import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test_purple_ventures/blocs/splash/splash_bloc.dart';
-import 'package:test_purple_ventures/blocs/splash/splash_state.dart';
 import 'package:test_purple_ventures/screens/base/base_page_screen.dart';
-import 'package:test_purple_ventures/widgets/app_logo_widget.dart';
-import 'package:test_purple_ventures/widgets/linear_gradient_widget.dart';
+import 'package:test_purple_ventures/utils/shared_preferences_manager/shared_preferences_manager.dart';
+import 'package:test_purple_ventures/values/app_color.dart';
+import 'package:test_purple_ventures/values/app_constant.dart';
+import 'package:test_purple_ventures/values/app_dependency_injection.dart';
 
 class SplashScreen extends BasePageScreen {
-  SplashScreen({Key? key}): super(key: key);
+
+  SplashScreen({
+    Key? key,
+  }): super(key: key);
 
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScreen {
-  late SplashBloc _bloc;
+
+  DateTime? appSuspendedTime;
+  int elapsedTimeInSeconds = 0;
 
   @override
   void initState() {
     super.initState();
-    _bloc = SplashBloc();
     screenOptions(title: "Splash");
-    // _bloc.add(CheckForceUpdateEvent());
-  }
-
-  void _blocListener(BuildContext context, SplashState state) async {
-    if (state.status.checkCommon(context, isLoading)) {
-      // if (state.status is StateSuccess) {
-      //   PackageInfo packageInfo = await PackageInfo.fromPlatform();
-      //   int buildNumber = int.parse(packageInfo.buildNumber);
-      //
-      //   if (state.model == null) {
-      //     AlertManager.instance.showPopupError(context);
-      //   } else if (state.model!.maintenance!.isUnderMaintenance!) {
-      //     _showPopupMaintenance(state.model!.maintenance!.msg!);
-      //   } else if (buildNumber < state.model!.update!.minimumForceUpdateVersion!) {
-      //     _showPopupForceUpdate(state.model!.update!.forcedUpdateMsg!);
-      //   } else if (buildNumber < state.model!.update!.currentVersion!) {
-      //     _showPopupNeedUpdate(state.model!.update!.updateAvailableMsg!);
-      //   } else {
-      //     _bloc.add(GetAppConfigEvent());
-      //   }
-      //
-      // } else if (state.status is StateFetchSuccess) {
-      //   AppConfigResponse appConfigResponse = (state.status as StateFetchSuccess).models;
-      //   AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.visitHelpSite, value: appConfigResponse.visitHelpSite);
-      //   AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.guestToken, value: appConfigResponse.guestToken);
-      //   Future.delayed(const Duration(milliseconds: 3000), () {
-      //     _checkLogin();
-      //   });
-      //
-      // } else if (state.status is StateFail) {
-      //   AlertManager.instance.showPopupError(
-      //       context,
-      //       detail: (state.status as StateFail).errorMessage,
-      //       onPress: () {
-      //         _exitApp();
-      //       }
-      //   );
-      // }
-    }
+    WidgetsBinding.instance.addObserver(this);
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      _checkAppPauseTime();
+    });
   }
 
   @override
   Widget body() {
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    return BlocProvider(
-      create: (context) => _bloc,
-      child: BlocListener<SplashBloc, SplashState>(
-        listener: _blocListener,
-        child: BlocBuilder<SplashBloc, SplashState>(
-          builder: (context, state) {
-            return LinearGradientWidget(
-              child: Column(
-                children: [
-                  Container(
-                    margin: EdgeInsets.only(top: screenHeight / 2),
-                    child: const AppLogoWidget(),
-                  ),
-                  Expanded(child: Container()),
-                ],
-              ),
-            );
-          },
+    return Container(
+      color: AppColor.lightViolet,
+      child: Center(
+        child: Image(
+          image: AssetImage("assets/images/app_logo.png"),
+          width: 100,
+          height: 100,
         ),
       ),
     );
@@ -95,6 +49,24 @@ class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScre
   @override
   void dispose() {
     super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
   }
 
+  _checkAppPauseTime() {
+    String? appSuspendedTimeString = AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.appSuspendedTime);
+    DateTime? appSuspendedTime = appSuspendedTimeString != null ? DateTime.parse(appSuspendedTimeString) : null;
+    final currentTime = DateTime.now();
+    final duration = currentTime.difference(appSuspendedTime!);
+    elapsedTimeInSeconds = duration.inSeconds;
+
+    // Check if the app was killed for at least 10 seconds
+    bool? isPasscodeValid = AppDependency.instance.sharedPreferencesManager.getBool(key: SharedPreferencesKey.isPasscodeValid);
+
+    if (elapsedTimeInSeconds >= 10 || isPasscodeValid == false) {
+      AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: false);
+      AppDependency.instance.navigatorCoordinate.goToEnterPasscodeScreen(context, AppConstant.SPLASH_PAGE);
+    } else {
+      AppDependency.instance.navigatorCoordinate.goToMain(context);
+    }
+  }
 }

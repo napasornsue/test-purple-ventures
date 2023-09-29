@@ -5,6 +5,7 @@ class AppConfig {
   static String APP_NAME = "Test Purple Ventures";
   static String VERSION_NAME = "1.0.0";
   static String BUILD_NUMBER = "1";
+  static bool SHOW_PASSCODE = false;
 
   static bool get IS_PRODUCTION => checkTargets(
     staging: false,

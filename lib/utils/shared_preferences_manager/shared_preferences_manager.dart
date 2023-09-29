@@ -28,5 +28,7 @@ class SharedPreferencesManager {
 }
 
 enum SharedPreferencesKey {
-  example,
+  appSuspendedTime,
+  storedPasscode,
+  isPasscodeValid,
 }
