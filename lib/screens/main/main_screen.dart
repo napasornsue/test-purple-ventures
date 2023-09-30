@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:test_purple_ventures/screens/base/base_page_screen.dart';
@@ -6,6 +7,7 @@ import 'package:test_purple_ventures/utils/shared_preferences_manager/shared_pre
 import 'package:test_purple_ventures/values/app_color.dart';
 import 'package:test_purple_ventures/values/app_constant.dart';
 import 'package:test_purple_ventures/values/app_dependency_injection.dart';
+import 'package:test_purple_ventures/values/app_string.dart';
 
 class MainScreen extends BasePageScreen {
 
@@ -33,6 +35,8 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen {
 
   @override
   Widget body() {
+    var statusBarHeight = MediaQuery.of(context).viewPadding.top;
+
     return WillPopScope(
       onWillPop: () async {
         if (!passcodeShowing) {
@@ -41,52 +45,204 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen {
         passcodeShowing = false;
         return true;
       },
-      child: Container(
-        color: AppColor.dimBlack,
-        child: DefaultTabController(
-          length: 3,
-          child: Stack(
-            children: [
-              _mainMenu(),
-              _createButton(),
-            ],
+      child: DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          body: Container(
+            padding: EdgeInsets.only(top: statusBarHeight),
+            child: Stack(
+              children: [
+                _tabBar()
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _mainMenu() => Scaffold(
-    appBar: AppBar(
-      title: const Text('TabBar Sample'),
-      bottom: const TabBar(
-        tabs: <Widget>[
-          Tab(
-            icon: Icon(Icons.cloud_outlined),
-          ),
-          Tab(
-            icon: Icon(Icons.beach_access_sharp),
-          ),
-          Tab(
-            icon: Icon(Icons.brightness_5_sharp),
-          ),
-        ],
-      ),
-    ),
-    body: const TabBarView(
-      children: <Widget>[
-        Center(
-          child: Text("It's cloudy here"),
+  Widget _tabBar() {
+    return Column(
+      children: [
+        Stack(
+          children: [
+            Positioned.fill(
+              child: Container(
+                margin: EdgeInsets.only(bottom: 20),
+                decoration: BoxDecoration(
+                  color: AppColor.lightViolet,
+                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+                ),
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 16, bottom: 16),
+                    alignment: Alignment.topRight,
+                    child: Icon(Icons.settings, color: AppColor.grey,),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 8),
+                    child: Text(
+                      "Hi! User",
+                      style: const TextStyle(
+                        color: AppColor.darkGrey,
+                        fontSize: 40,
+                        fontFamily: AppString.FONT_FAMILY_BOLD,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 8, top: 8),
+                    child: Text(
+                      "Have a nice day.",
+                      style: const TextStyle(
+                        color: AppColor.darkGrey,
+                        fontSize: 24,
+                        fontFamily: AppString.FONT_FAMILY_BOLD,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 24),
+                    height: 50,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24), color: AppColor.moreLightGrey),
+                    child: TabBar(
+                      splashFactory: NoSplash.splashFactory,
+                      indicatorPadding: EdgeInsets.all(8),
+                      indicator: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.topRight,
+                          colors: <Color>[
+                            AppColor.lightBlue,
+                            AppColor.moreLightBlue,
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                      ),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: AppColor.grey,
+                      tabs: [
+                        Tab(
+                          child: Text(
+                            "To-do",
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontFamily: AppString.FONT_FAMILY_MEDIUM,
+                            ),
+                          ),
+                        ),
+                        Tab(
+                          child: Text(
+                            "Doing",
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontFamily: AppString.FONT_FAMILY_MEDIUM,
+                            ),
+                          ),
+                        ),
+                        Tab(
+                          child: Text(
+                            "Done",
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontFamily: AppString.FONT_FAMILY_MEDIUM,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        Center(
-          child: Text("It's rainy here"),
-        ),
-        Center(
-          child: Text("It's sunny here"),
-        ),
+        Expanded(
+          child: TabBarView(children: [
+            _tabBarView("It's cloudy here"),
+            _tabBarView("It's rainy here"),
+            _tabBarView("It's sunny here"),
+          ]),
+        )
       ],
-    ),
-  );
+    );
+  }
+
+  Widget _tabBarView(String type) {
+    return ListView.builder(
+      padding: EdgeInsets.only(bottom: 24),
+      itemCount: 9, // The number of items in your list
+      itemBuilder: (context, index) {
+        // Build each item in the list based on the index
+        int randomNumber = (Random().nextInt(9) + 1);
+
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              (index % 2 == 0) ? Container(
+                margin: EdgeInsets.only(top: 30),
+                child: Text(
+                  "Tomorrow",
+                  style: const TextStyle(
+                    color: AppColor.dimBlack,
+                    fontSize: 24,
+                    fontFamily: AppString.FONT_FAMILY_BOLD,
+                  ),
+                ),
+              ) : Container(),
+              Container(
+                margin: EdgeInsets.only(top: 16),
+                child: Row(
+                  children: [
+                    Image(
+                      width: 48,
+                      height: 48,
+                      image: AssetImage("assets/images/task$randomNumber.png"),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(left: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Title",
+                            style: const TextStyle(
+                              color: AppColor.dimBlack,
+                              fontSize: 22,
+                              fontFamily: AppString.FONT_FAMILY_SEMI_BOLD,
+                            ),
+                          ),
+                          Text(
+                            "Description",
+                            style: const TextStyle(
+                              color: AppColor.grey,
+                              fontSize: 18,
+                              fontFamily: AppString.FONT_FAMILY_REGULAR,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
 
   Widget _createButton() => Align(
     alignment: Alignment.bottomCenter,
