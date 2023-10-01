@@ -80,7 +80,7 @@ mixin BaseScreen<Page extends BasePageScreen, STATE, EVENT> on BasePageScreenSta
       stream: isLoading!.stream,
       builder: (context, snapshot) {
         return snapshot.data ?? false
-            ? LoadingWidget(opacity: 0.5)
+            ? LoadingWidget()
             : const SizedBox(
           width: 1,
           height: 1,

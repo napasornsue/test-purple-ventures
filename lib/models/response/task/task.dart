@@ -12,6 +12,7 @@ class Task {
     this.description,
     this.createdAt,
     this.status,
+    this.image,
   });
 
   String? id;
@@ -19,6 +20,7 @@ class Task {
   String? description;
   String? createdAt;
   String? status;
+  String? image;
 
   factory Task.fromJson(Map<String, dynamic> json) => Task(
     id: json["id"],

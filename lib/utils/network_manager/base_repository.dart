@@ -11,7 +11,7 @@ class BaseRepository {
     _http = AppDependency.instance.get<NetworkManager>();
   }
 
-  Future<TaskResponse>? getTodoList({
+  Future<NetworkResponse<TaskResponse>>? getTodoList({
     required int offset,
     required int limit,
     required String sortBy,
@@ -19,16 +19,16 @@ class BaseRepository {
     required String status
   }) {
     var params = {
-      "offset": offset,
-      "limit": limit,
+      "offset": offset.toString(),
+      "limit": limit.toString(),
       "sortBy": sortBy,
-      "isAsc": isAsc,
+      "isAsc": isAsc.toString(),
       "status": status,
     };
     return _http.get(endPoint: NetworkEndpoints.TODO_LIST, params: params).then((response) {
       try {
         final _response = TaskResponse.fromJson(jsonDecode(response.body));
-        return _response;
+        return NetworkResponse(httpResponse: response, response: _response);
       } on Exception catch (_) {
         throw Exception(response.statusCode);
       }

@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
+import 'package:test_purple_ventures/blocs/base/base_bloc_status.dart';
 import 'package:test_purple_ventures/values/app_config.dart';
 import 'package:test_purple_ventures/values/app_string.dart';
 
@@ -61,4 +62,21 @@ class NetworkManager {
   }
 }
 
-enum ErrorType { internet, timeout, server }
+enum ErrorType { internet, timeout, server, client }
+
+class NetworkResponse<T> {
+  late http.Response? httpResponse;
+  late BaseBlocStatus status;
+  late T? response;
+
+  NetworkResponse({required this.httpResponse, required this.response}) {
+    switch (httpResponse?.statusCode) {
+      case 200:
+        status = StateSuccess();
+        break;
+      default:
+        status = StateFail();
+        break;
+    }
+  }
+}

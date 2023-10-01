@@ -9,4 +9,10 @@ class AppConstant {
   static const String STATUS_DOING = "DOING";
   static const String STATUS_DONE = "DONE";
 
+  //=================== Task SortBy ==================//
+  static const String CREATED_AT = "createdAt";
+
+  //=================== Date Format ==================//
+  static String DATETIME_DEFAULT_PATTERN = "yyyy-MM-dd HH:mm:ss";
+  static String DATETIME_DAY_OF_YEAR_PATTERN = "dd MMM yyyy";
 }
