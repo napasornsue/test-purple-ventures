@@ -1,8 +1,12 @@
 class AppConstant {
 
-  //=================== Task Status ==================//
+  //=================== Passcode ==================//
+  static const String DEFAULT_PASSCODE = "123456";
+
+  //=================== Page ==================//
   static const String SPLASH_PAGE = "splash";
   static const String MAIN_PAGE = "main";
+  static const String SETTING_PAGE = "setting";
 
   //=================== Task Status ==================//
   static const String STATUS_TODO = "TODO";

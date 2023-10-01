@@ -166,12 +166,17 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 16, bottom: 16),
-                    alignment: Alignment.topRight,
-                    child: Icon(
-                      Icons.settings,
-                      color: AppColor.grey,
+                  GestureDetector(
+                    onTap: () {
+                      AppDependency.instance.navigatorCoordinate.goToSettingScreen(context);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(top: 16, bottom: 16),
+                      alignment: Alignment.topRight,
+                      child: Icon(
+                        Icons.settings,
+                        color: AppColor.grey,
+                      ),
                     ),
                   ),
                   Container(

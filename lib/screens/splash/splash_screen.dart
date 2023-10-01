@@ -28,6 +28,7 @@ class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScre
     screenOptions(title: "Splash");
     WidgetsBinding.instance.addObserver(this);
     Future.delayed(const Duration(milliseconds: 2000), () {
+      AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.storedPasscode, value: AppConstant.DEFAULT_PASSCODE);
       _checkAppPauseTime();
     });
   }

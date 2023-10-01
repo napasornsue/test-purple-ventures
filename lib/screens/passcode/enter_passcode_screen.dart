@@ -39,18 +39,33 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
   Widget body() {
     return WillPopScope(
       onWillPop: () async {
+        if (widget.from == AppConstant.SETTING_PAGE) return true;
         return isAuthenticated;
       },
       child: PasscodeScreen(
         backgroundColor: AppColor.lightViolet,
-        title: Text(
-          'Enter Your Passcode',
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-              color: AppColor.darkGrey,
-              fontSize: 22,
-              fontFamily: AppString.FONT_FAMILY_BOLD
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              widget.from == AppConstant.SETTING_PAGE ? 'Enter New Passcode' : 'Enter Your Passcode',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: AppColor.darkGrey,
+                  fontSize: 24,
+                  fontFamily: AppString.FONT_FAMILY_BOLD
+              ),
+            ),
+            widget.from == AppConstant.SETTING_PAGE || AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.storedPasscode) != AppConstant.DEFAULT_PASSCODE ? Container() : Text(
+              'Default Passcode is ${AppConstant.DEFAULT_PASSCODE}',
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                  color: AppColor.grey,
+                  fontSize: 20,
+                  fontFamily: AppString.FONT_FAMILY_MEDIUM
+              ),
+            ),
+          ],
         ),
         circleUIConfig: CircleUIConfig(
             borderColor: AppColor.grey,
@@ -73,7 +88,6 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
         digits: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
         passwordDigits: 6,
         isValidCallback: _isValid,
-        // bottomWidget: _buildPasscodeRestoreButton(),
       ),
     );
   }
@@ -84,6 +98,9 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
         AppDependency.instance.navigatorCoordinate.goToMain(context);
         break;
       case AppConstant.MAIN_PAGE:
+        AppDependency.instance.navigatorCoordinate.back(context);
+        break;
+      case AppConstant.SETTING_PAGE:
         AppDependency.instance.navigatorCoordinate.back(context);
         break;
       default:
@@ -100,18 +117,23 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
   }
 
   _onPasscodeEntered(String enteredPasscode) {
-    AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.storedPasscode, value: "123456");
-
-    String? storedPasscode = AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.storedPasscode);
-
-    bool isValid = storedPasscode == enteredPasscode;
-    _verificationNotifier.add(isValid);
-    if (isValid) {
+    if (widget.from == AppConstant.SETTING_PAGE) {
+      AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.storedPasscode, value: enteredPasscode);
+      _verificationNotifier.add(true);
       setState(() {
-        this.isAuthenticated = isValid;
+        this.isAuthenticated = true;
       });
       AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: true);
+    } else {
+      String? storedPasscode = AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.storedPasscode);
+      bool isValid = storedPasscode == enteredPasscode;
+      _verificationNotifier.add(isValid);
+      if (isValid) {
+        setState(() {
+          this.isAuthenticated = isValid;
+        });
+        AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: true);
+      }
     }
   }
-
 }
