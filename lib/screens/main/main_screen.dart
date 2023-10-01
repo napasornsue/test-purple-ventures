@@ -27,21 +27,19 @@ class MainScreen extends BasePageScreen {
 class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, SingleTickerProviderStateMixin {
   late MainBloc _bloc;
   ErrorType? errorType;
-  DateTime? appSuspendedTime;
   int elapsedTimeInSeconds = 0;
-  bool passcodeShowing = false;
   int offset = 0;
   String selectedTab = AppConstant.STATUS_TODO;
-  late TabController _tabController;
+  bool passcodeShowing = false;
   bool isTabBarClick = false;
   bool isLoadingMore = false;
-  ScrollController _scrollController = ScrollController();
+  late TabController _tabController;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _bloc = MainBloc();
-    screenOptions(title: "Main");
     _getData();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
@@ -70,8 +68,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
     _scrollController.addListener(() {
       final maxExtent = _scrollController.position.maxScrollExtent;
       final currentExtent = _scrollController.offset;
-      final threshold = 50.0; // Adjust this threshold as needed
-
+      const threshold = 50.0;
       if (maxExtent - currentExtent <= threshold) {
         _getMoreData();
       }
@@ -103,7 +100,6 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
       if ((state.taskResponse?.tasks?.length ?? 0) > 0) {
         _bloc.groupItemsByDate(state.taskResponse?.tasks);
       }
-
     } else if (state.status is StateFail) {
       isLoading?.add(false);
       String? message = (state.status as StateFail).errorMessage;
@@ -139,7 +135,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
               backgroundColor: Colors.white,
               body: Container(
                 padding: EdgeInsets.only(top: statusBarHeight),
-                child: _tabBar(),
+                child: _buildUI(),
               ),
             ),
           ),
@@ -148,115 +144,20 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
     );
   }
 
-  Widget _tabBar() {
+  Widget _buildUI() {
     return Column(
       children: [
         Stack(
           children: [
-            Positioned.fill(
-              child: Container(
-                margin: EdgeInsets.only(bottom: 20),
-                decoration: BoxDecoration(
-                  color: AppColor.lightViolet,
-                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
-                ),
-              ),
-            ),
+            _headerBackground(),
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 24),
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      AppDependency.instance.navigatorCoordinate.goToSettingScreen(context);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.only(top: 16, bottom: 16),
-                      alignment: Alignment.topRight,
-                      child: Icon(
-                        Icons.settings,
-                        color: AppColor.grey,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 8),
-                    child: Text(
-                      "Hi! User",
-                      style: const TextStyle(
-                        color: AppColor.darkGrey,
-                        fontSize: 40,
-                        fontFamily: AppString.FONT_FAMILY_BOLD,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(left: 8, top: 8),
-                    child: Text(
-                      "Have a nice day.",
-                      style: const TextStyle(
-                        color: AppColor.darkGrey,
-                        fontSize: 24,
-                        fontFamily: AppString.FONT_FAMILY_BOLD,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(top: 24),
-                    height: 50,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: AppColor.moreLightGrey),
-                    child: TabBar(
-                      controller: _tabController,
-                      onTap: (index) {
-                        isTabBarClick = true;
-                      },
-                      splashFactory: NoSplash.splashFactory,
-                      indicatorPadding: EdgeInsets.all(8),
-                      indicator: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.topRight,
-                          colors: <Color>[
-                            AppColor.lightBlue,
-                            AppColor.moreLightBlue,
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      labelColor: Colors.white,
-                      unselectedLabelColor: AppColor.grey,
-                      tabs: [
-                        Tab(
-                          child: Text(
-                            "To-do",
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontFamily: AppString.FONT_FAMILY_MEDIUM,
-                            ),
-                          ),
-                        ),
-                        Tab(
-                          child: Text(
-                            "Doing",
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontFamily: AppString.FONT_FAMILY_MEDIUM,
-                            ),
-                          ),
-                        ),
-                        Tab(
-                          child: Text(
-                            "Done",
-                            style: const TextStyle(
-                              fontSize: 22,
-                              fontFamily: AppString.FONT_FAMILY_MEDIUM,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  _settingIcon(),
+                  _title(),
+                  _tabBar(),
                 ],
               ),
             ),
@@ -274,6 +175,121 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
           ),
         )
       ],
+    );
+  }
+
+  Widget _headerBackground() {
+    return Positioned.fill(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        decoration: const BoxDecoration(
+          color: AppColor.lightViolet,
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
+        ),
+      ),
+    );
+  }
+
+  Widget _settingIcon() {
+    return GestureDetector(
+      onTap: () {
+        AppDependency.instance.navigatorCoordinate.goToSettingScreen(context);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(top: 16, bottom: 16),
+        alignment: Alignment.topRight,
+        child: const Icon(
+          Icons.settings,
+          color: AppColor.grey,
+        ),
+      ),
+    );
+  }
+
+  Widget _title() {
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.only(left: 8),
+          child: const Text(
+            "Hi! User",
+            style: TextStyle(
+              color: AppColor.darkGrey,
+              fontSize: 40,
+              fontFamily: AppString.FONT_FAMILY_BOLD,
+            ),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.only(left: 8, top: 8),
+          child: const Text(
+            "Have a nice day.",
+            style: TextStyle(
+              color: AppColor.darkGrey,
+              fontSize: 24,
+              fontFamily: AppString.FONT_FAMILY_BOLD,
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget _tabBar() {
+    return Container(
+      margin: const EdgeInsets.only(top: 24),
+      height: 50,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: AppColor.moreLightGrey),
+      child: TabBar(
+        controller: _tabController,
+        onTap: (index) {
+          isTabBarClick = true;
+        },
+        splashFactory: NoSplash.splashFactory,
+        indicatorPadding: const EdgeInsets.all(8),
+        indicator: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.topRight,
+            colors: <Color>[
+              AppColor.lightBlue,
+              AppColor.moreLightBlue,
+            ],
+          ),
+          borderRadius: BorderRadius.circular(24),
+        ),
+        labelColor: Colors.white,
+        unselectedLabelColor: AppColor.grey,
+        tabs: const [
+          Tab(
+            child: Text(
+              "To-do",
+              style: TextStyle(
+                fontSize: 22,
+                fontFamily: AppString.FONT_FAMILY_MEDIUM,
+              ),
+            ),
+          ),
+          Tab(
+            child: Text(
+              "Doing",
+              style: TextStyle(
+                fontSize: 22,
+                fontFamily: AppString.FONT_FAMILY_MEDIUM,
+              ),
+            ),
+          ),
+          Tab(
+            child: Text(
+              "Done",
+              style: TextStyle(
+                fontSize: 22,
+                fontFamily: AppString.FONT_FAMILY_MEDIUM,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -297,96 +313,52 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
   }
 
   Widget _listView(MainState state) {
-    return Container(
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: EdgeInsets.only(bottom: 24),
-        itemCount: _bloc.groupedTasks.length ?? 0, // The number of items in your list
-        itemBuilder: (context, index) {
-          // Build each item in the list based on the index
-          final date = _bloc.groupedTasks.keys.elementAt(index);
-          final tasks = _bloc.groupedTasks[date]!;
-
-          return _listItemView(state, date, tasks, index);
-        },
-      ),
+    return ListView.builder(
+      controller: _scrollController,
+      padding: const EdgeInsets.only(bottom: 24),
+      itemCount: _bloc.groupedTasks.length,
+      itemBuilder: (context, index) {
+        final date = _bloc.groupedTasks.keys.elementAt(index);
+        final tasks = _bloc.groupedTasks[date]!;
+        return _itemView(state, date, tasks, index);
+      },
     );
   }
 
-  Widget _listItemView(MainState state, String? date, List<Task>? tasks, int groupIndex) {
+  Widget _itemView(MainState state, String? date, List<Task>? tasks, int groupIndex) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 24),
+      margin: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ListView.builder(
               padding: EdgeInsets.zero,
               shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: tasks?.length,
               itemBuilder: (context, index) {
                 var task = tasks?[index];
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    index == 0 ? Container(
-                      margin: EdgeInsets.only(top: 30),
-                      child: Text(
-                        date ?? "",
-                        style: const TextStyle(
-                          color: AppColor.dimBlack,
-                          fontSize: 24,
-                          fontFamily: AppString.FONT_FAMILY_BOLD,
-                        ),
-                      ),
-                    ) : Container(),
+                    index == 0
+                        ? Container(
+                            margin: const EdgeInsets.only(top: 30),
+                            child: _buildDayView(date),
+                          )
+                        : Container(),
                     Dismissible(
                       key: Key(task?.id ?? ""),
                       direction: DismissDirection.endToStart,
                       background: Container(
                         color: Colors.red,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.delete, color: Colors.white),
-                              onPressed: () {
-                                // Handle the delete button press
-                                setState(() {
-                                  tasks?.removeAt(index);
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                        child: Container(margin: const EdgeInsets.only(right: 16), child: const Align(alignment: Alignment.centerRight, child: Icon(Icons.delete, color: Colors.white))),
                       ),
                       confirmDismiss: (DismissDirection direction) async {
                         return await showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Confirm"),
-                              content: const Text("Are you sure you wish to delete this item?"),
-                              actions: <Widget>[
-                                TextButton(
-                                    onPressed: () => Navigator.of(context).pop(true),
-                                    child: const Text(
-                                      "DELETE", style: const TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 20,
-                                      fontFamily: AppString.FONT_FAMILY_MEDIUM,
-                                    ),),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(false),
-                                  child: const Text("CANCEL", style: const TextStyle(
-                            color: AppColor.darkGrey,
-                            fontSize: 20,
-                            fontFamily: AppString.FONT_FAMILY_MEDIUM,
-                            ),),
-                                ),
-                              ],
-                            );
+                            return _showDialog();
                           },
                         );
                       },
@@ -394,8 +366,6 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
                         setState(() {
                           tasks?.removeAt(index);
                         });
-
-                        // Then show a snackbar.
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Text(
@@ -412,54 +382,102 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
                           ),
                         );
                       },
-                      child: Container(
-                        margin: EdgeInsets.only(top: 16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            task?.image != null ? Image(
-                              width: 48,
-                              height: 48,
-                              image: AssetImage(task!.image!),
-                            ) : SizedBox(
-                              width: 48,
-                              height: 48,
-                            ),
-                            Expanded(
-                              child: Container(
-                                margin: EdgeInsets.only(left: 12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      task?.title ?? "",
-                                      style: const TextStyle(
-                                        color: AppColor.dimBlack,
-                                        fontSize: 22,
-                                        fontFamily: AppString.FONT_FAMILY_SEMI_BOLD,
-                                      ),
-                                    ),
-                                    Text(
-                                      task?.description ?? "",
-                                      style: const TextStyle(
-                                        color: AppColor.grey,
-                                        fontSize: 18,
-                                        fontFamily: AppString.FONT_FAMILY_REGULAR,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      child: _buildTaskItemView(task),
                     ),
                   ],
                 );
               })
         ],
       ),
+    );
+  }
+
+  Widget _buildDayView(date) {
+    return Text(
+      date ?? "",
+      style: const TextStyle(
+        color: AppColor.dimBlack,
+        fontSize: 24,
+        fontFamily: AppString.FONT_FAMILY_BOLD,
+      ),
+    );
+  }
+
+  Widget _buildTaskItemView(task) {
+    return Container(
+      margin: const EdgeInsets.only(top: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          task?.image != null
+              ? Image(
+            width: 48,
+            height: 48,
+            image: AssetImage(task!.image!),
+          )
+              : const SizedBox(
+            width: 48,
+            height: 48,
+          ),
+          Expanded(
+            child: Container(
+              margin: const EdgeInsets.only(left: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    task?.title ?? "",
+                    style: const TextStyle(
+                      color: AppColor.dimBlack,
+                      fontSize: 22,
+                      fontFamily: AppString.FONT_FAMILY_SEMI_BOLD,
+                    ),
+                  ),
+                  Text(
+                    task?.description ?? "",
+                    style: const TextStyle(
+                      color: AppColor.grey,
+                      fontSize: 18,
+                      fontFamily: AppString.FONT_FAMILY_REGULAR,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _showDialog() {
+    return AlertDialog(
+      title: const Text("Confirm"),
+      content: const Text("Are you sure you wish to delete this item?"),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text(
+            "DELETE",
+            style: const TextStyle(
+              color: Colors.red,
+              fontSize: 20,
+              fontFamily: AppString.FONT_FAMILY_MEDIUM,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text(
+            "CANCEL",
+            style: const TextStyle(
+              color: AppColor.darkGrey,
+              fontSize: 20,
+              fontFamily: AppString.FONT_FAMILY_MEDIUM,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -523,7 +541,6 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
     final duration = currentTime.difference(appSuspendedTime!);
     elapsedTimeInSeconds = duration.inSeconds;
 
-    // Check if the app was killed for at least 10 seconds
     bool? isPasscodeValid = AppDependency.instance.sharedPreferencesManager.getBool(key: SharedPreferencesKey.isPasscodeValid);
 
     if (elapsedTimeInSeconds >= 10 || isPasscodeValid == false) {

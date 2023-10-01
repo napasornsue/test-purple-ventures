@@ -40,13 +40,4 @@ class NavigatorCoordinate {
     );
   }
 
-  goToSettingPasscodeScreen(BuildContext context, String from) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => EnterPasscodeScreen(from: from),
-      ),
-    );
-  }
-
 }

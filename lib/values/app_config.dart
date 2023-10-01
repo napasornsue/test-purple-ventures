@@ -2,10 +2,9 @@ enum EnvironmentType { Production, Staging }
 
 class AppConfig {
   static EnvironmentType ENVIRONMENT = EnvironmentType.Staging;
-  static String APP_NAME = "TODO List";
+  static String APP_NAME = "Task Management";
   static String VERSION_NAME = "1.0.0";
   static String BUILD_NUMBER = "1";
-  static bool SHOW_PASSCODE = false;
 
   static bool get IS_PRODUCTION => checkTargets(
     staging: false,

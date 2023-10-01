@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:test_purple_ventures/screens/base/base_page_screen.dart';
 import 'package:test_purple_ventures/utils/shared_preferences_manager/shared_preferences_manager.dart';
@@ -19,13 +18,11 @@ class SplashScreen extends BasePageScreen {
 
 class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScreen {
 
-  DateTime? appSuspendedTime;
   int elapsedTimeInSeconds = 0;
 
   @override
   void initState() {
     super.initState();
-    screenOptions(title: "Splash");
     WidgetsBinding.instance.addObserver(this);
     Future.delayed(const Duration(milliseconds: 2000), () {
       AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.storedPasscode, value: AppConstant.DEFAULT_PASSCODE);
@@ -37,7 +34,7 @@ class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScre
   Widget body() {
     return Container(
       color: AppColor.lightViolet,
-      child: Center(
+      child: const Center(
         child: Image(
           image: AssetImage("assets/images/app_logo.png"),
           width: 100,
@@ -61,7 +58,6 @@ class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScre
       final duration = currentTime.difference(appSuspendedTime!);
       elapsedTimeInSeconds = duration.inSeconds;
 
-      // Check if the app was killed for at least 10 seconds
       bool? isPasscodeValid = AppDependency.instance.sharedPreferencesManager.getBool(key: SharedPreferencesKey.isPasscodeValid);
 
       if (elapsedTimeInSeconds >= 10 || isPasscodeValid == false) {

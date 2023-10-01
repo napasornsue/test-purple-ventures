@@ -65,7 +65,7 @@ class _ErrorViewState extends State<ErrorView> {
                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   padding: const EdgeInsets.only(top: 9, bottom: 9),
                   shape: RoundedRectangleBorder(
-                    side: BorderSide(color: AppColor.error),
+                    side: const BorderSide(color: AppColor.error),
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),

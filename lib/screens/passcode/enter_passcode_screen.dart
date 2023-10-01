@@ -23,13 +23,13 @@ class EnterPasscodeScreen extends BasePageScreen {
 }
 
 class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen> with BaseScreen {
+
   final StreamController<bool> _verificationNotifier = StreamController<bool>.broadcast();
   bool isAuthenticated = false;
 
   @override
   void initState() {
     super.initState();
-    screenOptions(title: "Passcode");
     WidgetsBinding.instance.addObserver(this);
   }
 
@@ -57,27 +57,27 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
                 ),
                 widget.from == AppConstant.SETTING_PAGE || AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.storedPasscode) != AppConstant.DEFAULT_PASSCODE
                     ? Container()
-                    : Text(
+                    : const Text(
                         'Default Passcode is ${AppConstant.DEFAULT_PASSCODE}',
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColor.grey, fontSize: 20, fontFamily: AppString.FONT_FAMILY_MEDIUM),
+                        style: TextStyle(color: AppColor.grey, fontSize: 20, fontFamily: AppString.FONT_FAMILY_MEDIUM),
                       ),
               ],
             ),
-            circleUIConfig: CircleUIConfig(borderColor: AppColor.grey, fillColor: AppColor.grey, circleSize: 30),
-            keyboardUIConfig: KeyboardUIConfig(
+            circleUIConfig: const CircleUIConfig(borderColor: AppColor.grey, fillColor: AppColor.grey, circleSize: 30),
+            keyboardUIConfig: const KeyboardUIConfig(
               digitFillColor: AppColor.lightGrey,
               digitBorderWidth: 0,
-              digitTextStyle: const TextStyle(color: AppColor.darkGrey, fontSize: 56, fontFamily: AppString.FONT_FAMILY_REGULAR),
+              digitTextStyle: TextStyle(color: AppColor.darkGrey, fontSize: 56, fontFamily: AppString.FONT_FAMILY_REGULAR),
             ),
             cancelCallback: null,
-            cancelButton: Icon(
+            cancelButton: const Icon(
               Icons.cancel,
               color: Colors.transparent,
             ),
             // Hide cancel button
             passwordEnteredCallback: _onPasscodeEntered,
-            deleteButton: Icon(
+            deleteButton: const Icon(
               Icons.backspace,
               color: AppColor.darkGrey,
               size: 30,
@@ -96,7 +96,7 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
               child: Container(
                 margin: EdgeInsets.only(top: 16 + statusBarHeight, left: 16, bottom: 16),
                 alignment: Alignment.centerLeft,
-                child: Icon(
+                child: const Icon(
                   Icons.arrow_back_ios,
                   color: AppColor.grey,
                 ),
@@ -137,7 +137,7 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
       AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.storedPasscode, value: enteredPasscode);
       _verificationNotifier.add(true);
       setState(() {
-        this.isAuthenticated = true;
+        isAuthenticated = true;
       });
       AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: true);
     } else {
@@ -146,7 +146,7 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
       _verificationNotifier.add(isValid);
       if (isValid) {
         setState(() {
-          this.isAuthenticated = isValid;
+          isAuthenticated = isValid;
         });
         AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: true);
       }

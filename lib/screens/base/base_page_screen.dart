@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
@@ -13,23 +11,8 @@ abstract class BasePageScreen extends StatefulWidget {
 
 abstract class BasePageScreenState<Page extends BasePageScreen> extends State<Page> with RouteAware, WidgetsBindingObserver {
 
-  String? title;
-  bool? showNavigator;
-  bool? showBack;
-  List<Widget>? rightButtons;
   BehaviorSubject<bool>? isLoading;
 
-  void screenOptions({
-    String? title,
-    bool? showNavigator,
-    bool? showBack,
-    List<Widget>? rightButtons,
-  }) {
-    this.title = title ?? this.title;
-    this.showNavigator = showNavigator ?? this.showNavigator;
-    this.showBack = showBack ?? this.showBack;
-    this.rightButtons = rightButtons ?? this.rightButtons;
-  }
 }
 
 mixin BaseScreen<Page extends BasePageScreen, STATE, EVENT> on BasePageScreenState<Page> {
