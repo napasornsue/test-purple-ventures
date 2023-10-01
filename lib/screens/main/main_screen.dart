@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
@@ -34,6 +33,8 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
   String selectedTab = AppConstant.STATUS_TODO;
   late TabController _tabController;
   bool isTabBarClick = false;
+  bool isLoadingMore = false;
+  ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -65,18 +66,43 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
       }
       isTabBarClick = false;
     });
+    _scrollController.addListener(() {
+      final maxExtent = _scrollController.position.maxScrollExtent;
+      final currentExtent = _scrollController.offset;
+      final threshold = 50.0; // Adjust this threshold as needed
+
+      if (maxExtent - currentExtent <= threshold) {
+        _getMoreData();
+      }
+    });
   }
 
   void _getData() {
     isLoading?.add(true);
+    offset = 0;
+    _bloc.groupedTasks = {};
     _bloc.add(GetTodoListEvent(offset: offset, status: selectedTab));
+  }
+
+  void _getMoreData() {
+    if ((_bloc.state.taskResponse?.pageNumber ?? 0) < (_bloc.state.taskResponse?.totalPages ?? 0) - 1) {
+      if (!isLoadingMore) {
+        isLoadingMore = true;
+        offset += 1;
+        _bloc.add(LoadMoreTodoListEvent(offset: offset, status: selectedTab));
+      }
+    }
   }
 
   void _blocListener(BuildContext context, MainState state) {
     if (state.status is StateSuccess) {
       errorType = null;
       isLoading?.add(false);
-      state.taskResponse?.groupItemsByDate();
+      isLoadingMore = false;
+      if ((state.taskResponse?.tasks?.length ?? 0) > 0) {
+        _bloc.groupItemsByDate(state.taskResponse?.tasks);
+      }
+
     } else if (state.status is StateFail) {
       isLoading?.add(false);
       String? message = (state.status as StateFail).errorMessage;
@@ -251,7 +277,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
       builder: (context, state) {
         return errorType == null
             ? isLoading?.value == false
-                ? state.taskResponse?.tasks?.isEmpty ?? true
+                ? _bloc.groupedTasks.isEmpty
                     ? _emptyView()
                     : _listView(state)
                 : Container()
@@ -267,12 +293,13 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
   Widget _listView(MainState state) {
     return Container(
       child: ListView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.only(bottom: 24),
-        itemCount: state.taskResponse?.groupedTasks.length ?? 0, // The number of items in your list
+        itemCount: _bloc.groupedTasks.length ?? 0, // The number of items in your list
         itemBuilder: (context, index) {
           // Build each item in the list based on the index
-          final date = state.taskResponse?.groupedTasks.keys.elementAt(index);
-          final tasks = state.taskResponse?.groupedTasks[date]!;
+          final date = _bloc.groupedTasks.keys.elementAt(index);
+          final tasks = _bloc.groupedTasks[date]!;
 
           return _listItemView(state, date, tasks, index);
         },
@@ -424,6 +451,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 

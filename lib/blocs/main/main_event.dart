@@ -12,3 +12,13 @@ class GetTodoListEvent with MainEvent {
     required this.status
   });
 }
+
+class LoadMoreTodoListEvent with MainEvent {
+  int offset;
+  String status;
+
+  LoadMoreTodoListEvent({
+    required this.offset,
+    required this.status
+  });
+}
