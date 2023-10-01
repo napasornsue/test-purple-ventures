@@ -11,20 +11,18 @@ import 'package:test_purple_ventures/values/app_dependency_injection.dart';
 import 'package:test_purple_ventures/values/app_string.dart';
 
 class EnterPasscodeScreen extends BasePageScreen {
-
   String? from;
 
   EnterPasscodeScreen({
     Key? key,
     this.from,
-  }): super(key: key);
+  }) : super(key: key);
 
   @override
   _EnterPasscodeScreenState createState() => _EnterPasscodeScreenState();
 }
 
 class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen> with BaseScreen {
-
   final StreamController<bool> _verificationNotifier = StreamController<bool>.broadcast();
   bool isAuthenticated = false;
 
@@ -37,57 +35,75 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
 
   @override
   Widget body() {
+    var statusBarHeight = MediaQuery.of(context).viewPadding.top;
+
     return WillPopScope(
       onWillPop: () async {
         if (widget.from == AppConstant.SETTING_PAGE) return true;
         return isAuthenticated;
       },
-      child: PasscodeScreen(
-        backgroundColor: AppColor.lightViolet,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              widget.from == AppConstant.SETTING_PAGE ? 'Enter New Passcode' : 'Enter Your Passcode',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: AppColor.darkGrey,
-                  fontSize: 24,
-                  fontFamily: AppString.FONT_FAMILY_BOLD
-              ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          PasscodeScreen(
+            backgroundColor: AppColor.lightViolet,
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  widget.from == AppConstant.SETTING_PAGE ? 'Enter New Passcode' : 'Enter Your Passcode',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: AppColor.darkGrey, fontSize: 24, fontFamily: AppString.FONT_FAMILY_BOLD),
+                ),
+                widget.from == AppConstant.SETTING_PAGE || AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.storedPasscode) != AppConstant.DEFAULT_PASSCODE
+                    ? Container()
+                    : Text(
+                        'Default Passcode is ${AppConstant.DEFAULT_PASSCODE}',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: AppColor.grey, fontSize: 20, fontFamily: AppString.FONT_FAMILY_MEDIUM),
+                      ),
+              ],
             ),
-            widget.from == AppConstant.SETTING_PAGE || AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.storedPasscode) != AppConstant.DEFAULT_PASSCODE ? Container() : Text(
-              'Default Passcode is ${AppConstant.DEFAULT_PASSCODE}',
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                  color: AppColor.grey,
-                  fontSize: 20,
-                  fontFamily: AppString.FONT_FAMILY_MEDIUM
-              ),
+            circleUIConfig: CircleUIConfig(borderColor: AppColor.grey, fillColor: AppColor.grey, circleSize: 30),
+            keyboardUIConfig: KeyboardUIConfig(
+              digitFillColor: AppColor.lightGrey,
+              digitBorderWidth: 0,
+              digitTextStyle: const TextStyle(color: AppColor.darkGrey, fontSize: 56, fontFamily: AppString.FONT_FAMILY_REGULAR),
             ),
-          ],
-        ),
-        circleUIConfig: CircleUIConfig(
-            borderColor: AppColor.grey,
-            fillColor: AppColor.grey,
-            circleSize: 30),
-        keyboardUIConfig: KeyboardUIConfig(
-          digitFillColor: AppColor.lightGrey,
-          digitBorderWidth: 0,
-          digitTextStyle: const TextStyle(
+            cancelCallback: null,
+            cancelButton: Icon(
+              Icons.cancel,
+              color: Colors.transparent,
+            ),
+            // Hide cancel button
+            passwordEnteredCallback: _onPasscodeEntered,
+            deleteButton: Icon(
+              Icons.backspace,
               color: AppColor.darkGrey,
-              fontSize: 56,
-              fontFamily: AppString.FONT_FAMILY_REGULAR
+              size: 30,
+            ),
+            shouldTriggerVerification: _verificationNotifier.stream,
+            digits: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+            passwordDigits: 6,
+            isValidCallback: _isValid,
           ),
-        ),
-        cancelCallback: null,
-        cancelButton: Icon(Icons.cancel, color: Colors.transparent,), // Hide cancel button
-        passwordEnteredCallback: _onPasscodeEntered,
-        deleteButton: Icon(Icons.backspace, color: AppColor.darkGrey, size: 30,),
-        shouldTriggerVerification: _verificationNotifier.stream,
-        digits: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
-        passwordDigits: 6,
-        isValidCallback: _isValid,
+          widget.from == AppConstant.SETTING_PAGE ? Positioned(
+            top: 0,
+            child: GestureDetector(
+              onTap: () {
+                AppDependency.instance.navigatorCoordinate.back(context);
+              },
+              child: Container(
+                margin: EdgeInsets.only(top: 16 + statusBarHeight, left: 16, bottom: 16),
+                alignment: Alignment.centerLeft,
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: AppColor.grey,
+                ),
+              ),
+            ),
+          ) : Container(),
+        ],
       ),
     );
   }

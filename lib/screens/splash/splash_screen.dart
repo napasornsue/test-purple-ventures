@@ -56,18 +56,22 @@ class _SplashScreenState extends BasePageScreenState<SplashScreen> with BaseScre
   _checkAppPauseTime() {
     String? appSuspendedTimeString = AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.appSuspendedTime);
     DateTime? appSuspendedTime = appSuspendedTimeString != null ? DateTime.parse(appSuspendedTimeString) : null;
-    final currentTime = DateTime.now();
-    final duration = currentTime.difference(appSuspendedTime!);
-    elapsedTimeInSeconds = duration.inSeconds;
+    if (appSuspendedTime != null) {
+      final currentTime = DateTime.now();
+      final duration = currentTime.difference(appSuspendedTime!);
+      elapsedTimeInSeconds = duration.inSeconds;
 
-    // Check if the app was killed for at least 10 seconds
-    bool? isPasscodeValid = AppDependency.instance.sharedPreferencesManager.getBool(key: SharedPreferencesKey.isPasscodeValid);
+      // Check if the app was killed for at least 10 seconds
+      bool? isPasscodeValid = AppDependency.instance.sharedPreferencesManager.getBool(key: SharedPreferencesKey.isPasscodeValid);
 
-    if (elapsedTimeInSeconds >= 10 || isPasscodeValid == false) {
-      AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: false);
-      AppDependency.instance.navigatorCoordinate.goToEnterPasscodeScreen(context, AppConstant.SPLASH_PAGE);
+      if (elapsedTimeInSeconds >= 10 || isPasscodeValid == false) {
+        AppDependency.instance.sharedPreferencesManager.updateBool(key: SharedPreferencesKey.isPasscodeValid, value: false);
+        AppDependency.instance.navigatorCoordinate.goToEnterPasscodeScreen(context, AppConstant.SPLASH_PAGE);
+      } else {
+        AppDependency.instance.navigatorCoordinate.goToMain(context);
+      }
     } else {
-      AppDependency.instance.navigatorCoordinate.goToMain(context);
+      AppDependency.instance.navigatorCoordinate.goToEnterPasscodeScreen(context, AppConstant.SPLASH_PAGE);
     }
   }
 }

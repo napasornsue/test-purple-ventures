@@ -341,6 +341,53 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
                     ) : Container(),
                     Dismissible(
                       key: Key(task?.id ?? ""),
+                      background: Container(
+                        color: Colors.red,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.delete, color: Colors.white),
+                              onPressed: () {
+                                // Handle the delete button press
+                                setState(() {
+                                  tasks?.removeAt(index);
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      confirmDismiss: (DismissDirection direction) async {
+                        return await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Confirm"),
+                              content: const Text("Are you sure you wish to delete this item?"),
+                              actions: <Widget>[
+                                TextButton(
+                                    onPressed: () => Navigator.of(context).pop(true),
+                                    child: const Text(
+                                      "DELETE", style: const TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 20,
+                                      fontFamily: AppString.FONT_FAMILY_MEDIUM,
+                                    ),),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(false),
+                                  child: const Text("CANCEL", style: const TextStyle(
+                            color: AppColor.darkGrey,
+                            fontSize: 20,
+                            fontFamily: AppString.FONT_FAMILY_MEDIUM,
+                            ),),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
                       onDismissed: (direction) {
                         setState(() {
                           tasks?.removeAt(index);
