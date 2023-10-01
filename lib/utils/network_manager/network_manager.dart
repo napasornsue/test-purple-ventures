@@ -38,7 +38,7 @@ class NetworkManager {
         return AppString.ERROR_INTERNET;
       } else if (error == ErrorType.timeout) {
         if (await _checkInternetConnection()) {
-          return AppString.ERROR_SERVER;
+          return AppString.ERROR_DEFAULT;
         } else {
           return AppString.ERROR_INTERNET;
         }
@@ -62,7 +62,7 @@ class NetworkManager {
   }
 }
 
-enum ErrorType { internet, timeout, server, client }
+enum ErrorType { internet, timeout, server }
 
 class NetworkResponse<T> {
   late http.Response? httpResponse;

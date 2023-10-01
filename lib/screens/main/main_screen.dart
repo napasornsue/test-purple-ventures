@@ -13,6 +13,7 @@ import 'package:test_purple_ventures/values/app_color.dart';
 import 'package:test_purple_ventures/values/app_constant.dart';
 import 'package:test_purple_ventures/values/app_dependency_injection.dart';
 import 'package:test_purple_ventures/values/app_string.dart';
+import 'package:test_purple_ventures/widgets/error_view.dart';
 
 class MainScreen extends BasePageScreen {
   MainScreen({
@@ -106,13 +107,13 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
     } else if (state.status is StateFail) {
       isLoading?.add(false);
       String? message = (state.status as StateFail).errorMessage;
-      if (message == AppString.ERROR_INTERNET) {
-        errorType = ErrorType.internet;
-      } else if (message == AppString.ERROR_SERVER) {
-        errorType = ErrorType.server;
-      } else {
-        errorType = ErrorType.client;
-      }
+      setState(() {
+        if (message == AppString.ERROR_INTERNET) {
+          errorType = ErrorType.internet;
+        } else {
+          errorType = ErrorType.server;
+        }
+      });
     }
   }
 
@@ -278,7 +279,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
 
   Widget _tabBarView() {
     return BlocBuilder<MainBloc, MainState>(
-      buildWhen: (o, n) => n.taskResponse != null,
+      buildWhen: (o, n) => true,
       builder: (context, state) {
         return errorType == null
             ? isLoading?.value == false
@@ -287,9 +288,9 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
                     : _listView(state)
                 : Container()
             : errorType == ErrorType.internet
-                ? _networkErrorView()
-                : errorType == ErrorType.server || errorType == ErrorType.client
-                    ? _errorView()
+                ? _networkErrorView(state)
+                : errorType == ErrorType.server
+                    ? _errorView(state)
                     : Container();
       },
     );
@@ -341,6 +342,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
                     ) : Container(),
                     Dismissible(
                       key: Key(task?.id ?? ""),
+                      direction: DismissDirection.endToStart,
                       background: Container(
                         color: Colors.red,
                         child: Row(
@@ -462,42 +464,35 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
   }
 
   Widget _emptyView() {
-    // return EmptyView(
-    //   assetImage: "assets/images/stream_empty_ic.png",
-    //   title: "Data Not Found",
-    //   detail: "Please log out, and re-log in",
-    //   buttonTitle: "Log Out",
-    //   onPressed: () {
-    //     _showPopupLogout("Log Out", "Are you sure you want to log out,\nand miss out on the latest deals?");
-    //   },
-    // );
-    return Container();
+    return ErrorView(
+      assetImage: "assets/images/empty_ic.png",
+      title: AppString.EMPTY_DATA,
+      detail: "",
+    );
   }
 
-  Widget _networkErrorView() {
-    // return ErrorView(
-    //   assetImage: "assets/images/internet_error_ic.png",
-    //   title: AppString.ERROR_INTERNET,
-    //   detail: "Id modi eaque nemo est. Hic porro quis corporis veniam.\nEa sunt quos veniam aut culpa consectetur.",
-    //   buttonTitle: "Retry",
-    //   onPressed: () {
-    //     _getData();
-    //   },
-    // );
-    return Container();
+  Widget _networkErrorView(MainState state) {
+    return ErrorView(
+      assetImage: "assets/images/internet_error_ic.png",
+      title: AppString.ERROR_INTERNET,
+      detail: state.status is StateFail ? ((state.status as StateFail).errorMessage ?? "") : "",
+      buttonTitle: "Retry",
+      onPressed: () {
+        _getData();
+      },
+    );
   }
 
-  Widget _errorView() {
-    // return ErrorView(
-    //   assetImage: "assets/images/server_error_ic.png",
-    //   title: AppString.ERROR_SERVER,
-    //   detail: "Id modi eaque nemo est. Hic porro quis corporis veniam.\nEa sunt quos veniam aut culpa consectetur.",
-    //   buttonTitle: "Retry",
-    //   onPressed: () {
-    //     _getData();
-    //   },
-    // );
-    return Container();
+  Widget _errorView(MainState state) {
+    return ErrorView(
+      assetImage: "assets/images/error_ic.png",
+      title: AppString.ERROR_DEFAULT,
+      detail: state.status is StateFail ? ((state.status as StateFail).errorMessage ?? "") : "",
+      buttonTitle: "Retry",
+      onPressed: () {
+        _getData();
+      },
+    );
   }
 
   @override

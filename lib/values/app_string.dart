@@ -7,8 +7,8 @@ class AppString {
   static const String FONT_FAMILY_SEMI_BOLD = 'FC-Iconic-SemiBold';
 
   //=================== Error ==================//
-  static String ERROR_INTERNET = "No internet connection";
-  static String ERROR_SERVER = "Can’t connect to the server";
   static String ERROR_DEFAULT = "Something went wrong";
+  static String ERROR_INTERNET = "No internet connection";
+  static String EMPTY_DATA = "There's no task right now.";
 
 }

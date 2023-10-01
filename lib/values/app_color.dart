@@ -13,7 +13,7 @@ class AppColor {
   static const Color textGrey50 = Color.fromRGBO(112, 112, 112, 0.5);
   static const Color textGrey30 = Color.fromRGBO(112, 112, 112, 0.3);
   static const Color errorMessage = Color.fromRGBO(217, 54, 54, 1);
-  static const Color error = Color.fromRGBO(178, 27, 27, 1);
+  static const Color error = Color.fromRGBO(223, 79, 95, 1);
   static const Color blackBlue = Color.fromRGBO(1, 37, 63, 1);
   static const Color backgroundGrey = Color.fromRGBO(228, 228, 228, 1);
   static const Color backgroundMoreGrey = Color.fromRGBO(193, 193, 193, 1);
