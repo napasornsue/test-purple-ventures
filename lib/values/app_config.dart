@@ -13,7 +13,7 @@ class AppConfig {
 
   static String get SERVICE_ENDPOINT => checkTargets(
     staging: "https://todo-list-api-mfchjooefq-as.a.run.app",
-    production: "",
+    production: "https://todo-list-api-mfchjooefq-as.a.run.app",
   );
 
   static bool get IS_DEBUG_MODE => checkTargets(

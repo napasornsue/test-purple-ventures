@@ -44,8 +44,6 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   passcode_screen: ^2.0.1
   intl: ^0.17.0
-  mockito: ^5.4.0
-  mocktail: ^1.0.0
 
 flutter_launcher_icons:
   android: "launcher_icon"
