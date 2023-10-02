@@ -11,8 +11,23 @@ abstract class BasePageScreen extends StatefulWidget {
 
 abstract class BasePageScreenState<Page extends BasePageScreen> extends State<Page> with RouteAware, WidgetsBindingObserver {
 
+  String? title;
+  bool? showNavigator;
+  bool? showBack;
+  List<Widget>? rightButtons;
   BehaviorSubject<bool>? isLoading;
 
+  void screenOptions({
+    String? title,
+    bool? showNavigator,
+    bool? showBack,
+    List<Widget>? rightButtons,
+  }) {
+    this.title = title ?? this.title;
+    this.showNavigator = showNavigator ?? this.showNavigator;
+    this.showBack = showBack ?? this.showBack;
+    this.rightButtons = rightButtons ?? this.rightButtons;
+  }
 }
 
 mixin BaseScreen<Page extends BasePageScreen, STATE, EVENT> on BasePageScreenState<Page> {
@@ -32,7 +47,10 @@ mixin BaseScreen<Page extends BasePageScreen, STATE, EVENT> on BasePageScreenSta
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    AppDependency.instance.routeObserver.subscribe(this, ModalRoute.of(context)!);
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute != null) {
+      AppDependency.instance.routeObserver.subscribe(this, modalRoute);
+    }
   }
 
   @override

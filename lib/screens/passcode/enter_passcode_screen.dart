@@ -19,10 +19,10 @@ class EnterPasscodeScreen extends BasePageScreen {
   }) : super(key: key);
 
   @override
-  _EnterPasscodeScreenState createState() => _EnterPasscodeScreenState();
+  EnterPasscodeScreenState createState() => EnterPasscodeScreenState();
 }
 
-class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen> with BaseScreen {
+class EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen> with BaseScreen {
 
   final StreamController<bool> _verificationNotifier = StreamController<bool>.broadcast();
   bool isAuthenticated = false;
@@ -35,6 +35,10 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
 
   @override
   Widget body() {
+    if (!mounted) {
+      return const SizedBox.shrink();
+    }
+
     var statusBarHeight = MediaQuery.of(context).viewPadding.top;
 
     return WillPopScope(
@@ -76,7 +80,7 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
               color: Colors.transparent,
             ),
             // Hide cancel button
-            passwordEnteredCallback: _onPasscodeEntered,
+            passwordEnteredCallback: onPasscodeEntered,
             deleteButton: const Icon(
               Icons.backspace,
               color: AppColor.darkGrey,
@@ -85,7 +89,7 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
             shouldTriggerVerification: _verificationNotifier.stream,
             digits: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
             passwordDigits: 6,
-            isValidCallback: _isValid,
+            isValidCallback: isValid,
           ),
           widget.from == AppConstant.SETTING_PAGE ? Positioned(
             top: 0,
@@ -108,7 +112,7 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
     );
   }
 
-  _isValid() {
+  isValid() {
     switch (widget.from) {
       case AppConstant.SPLASH_PAGE:
         AppDependency.instance.navigatorCoordinate.goToMain(context);
@@ -128,11 +132,11 @@ class _EnterPasscodeScreenState extends BasePageScreenState<EnterPasscodeScreen>
   @override
   void dispose() {
     _verificationNotifier.close();
-    super.dispose();
     WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
-  _onPasscodeEntered(String enteredPasscode) {
+  onPasscodeEntered(String enteredPasscode) {
     if (widget.from == AppConstant.SETTING_PAGE) {
       AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.storedPasscode, value: enteredPasscode);
       _verificationNotifier.add(true);

@@ -21,10 +21,10 @@ class MainScreen extends BasePageScreen {
   }) : super(key: key);
 
   @override
-  _MainScreenState createState() => _MainScreenState();
+  MainScreenState createState() => MainScreenState();
 }
 
-class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, SingleTickerProviderStateMixin {
+class MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, SingleTickerProviderStateMixin {
   late MainBloc _bloc;
   ErrorType? errorType;
   int elapsedTimeInSeconds = 0;
@@ -42,37 +42,41 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
     _bloc = MainBloc();
     _getData();
     _tabController = TabController(length: 3, vsync: this);
-    _tabController.addListener(() {
-      if (!isTabBarClick) {
-        switch (_tabController.index) {
-          case 0:
-            {
-              selectedTab = AppConstant.STATUS_TODO;
-              break;
-            }
-          case 1:
-            {
-              selectedTab = AppConstant.STATUS_DOING;
-              break;
-            }
-          case 2:
-            {
-              selectedTab = AppConstant.STATUS_DONE;
-              break;
-            }
-        }
-        _getData();
+    _tabController.addListener(tabListener);
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void tabListener() {
+    if (!isTabBarClick) {
+      switch (_tabController.index) {
+        case 0:
+          {
+            selectedTab = AppConstant.STATUS_TODO;
+            break;
+          }
+        case 1:
+          {
+            selectedTab = AppConstant.STATUS_DOING;
+            break;
+          }
+        case 2:
+          {
+            selectedTab = AppConstant.STATUS_DONE;
+            break;
+          }
       }
-      isTabBarClick = false;
-    });
-    _scrollController.addListener(() {
-      final maxExtent = _scrollController.position.maxScrollExtent;
-      final currentExtent = _scrollController.offset;
-      const threshold = 50.0;
-      if (maxExtent - currentExtent <= threshold) {
-        _getMoreData();
-      }
-    });
+      _getData();
+    }
+    isTabBarClick = false;
+  }
+
+  void _scrollListener() {
+    final maxExtent = _scrollController.position.maxScrollExtent;
+    final currentExtent = _scrollController.offset;
+    const threshold = 50.0;
+    if (maxExtent - currentExtent <= threshold) {
+      _getMoreData();
+    }
   }
 
   void _getData() {
@@ -208,6 +212,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
 
   Widget _title() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
           margin: const EdgeInsets.only(left: 8),
@@ -459,7 +464,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
           onPressed: () => Navigator.of(context).pop(true),
           child: const Text(
             "DELETE",
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.red,
               fontSize: 20,
               fontFamily: AppString.FONT_FAMILY_MEDIUM,
@@ -470,7 +475,7 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
           onPressed: () => Navigator.of(context).pop(false),
           child: const Text(
             "CANCEL",
-            style: const TextStyle(
+            style: TextStyle(
               color: AppColor.darkGrey,
               fontSize: 20,
               fontFamily: AppString.FONT_FAMILY_MEDIUM,
@@ -530,11 +535,11 @@ class _MainScreenState extends BasePageScreenState<MainScreen> with BaseScreen, 
       AppDependency.instance.sharedPreferencesManager.update(key: SharedPreferencesKey.appSuspendedTime, value: dateFormat.format(DateTime.now()));
       passcodeShowing = false;
     } else if (state == AppLifecycleState.resumed && appSuspendedTime != null) {
-      _checkAppPauseTime();
+      checkAppPauseTime();
     }
   }
 
-  _checkAppPauseTime() {
+  void checkAppPauseTime() {
     String? appSuspendedTimeString = AppDependency.instance.sharedPreferencesManager.get(key: SharedPreferencesKey.appSuspendedTime);
     DateTime? appSuspendedTime = appSuspendedTimeString != null ? DateTime.parse(appSuspendedTimeString) : null;
     final currentTime = DateTime.now();
